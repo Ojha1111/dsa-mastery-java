@@ -1,0 +1,571 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem 0;font-family:var(--font-sans)}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.2rem}
+.tab{padding:7px 11px;font-size:11px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.sec{display:none}.sec.active{display:block}
+.pat-intro{font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7;background:var(--color-background-secondary);padding:10px 12px;border-radius:6px}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.filt{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;color:var(--color-text-secondary)}
+.filt.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.cat-head{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:4px 10px;border-radius:4px;margin:1.2rem 0 .6rem}
+.pc{border:0.5px solid var(--color-border-tertiary);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.ph{padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start}
+.ph:hover{background:var(--color-background-secondary)}
+.pt{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.pb{display:none;padding:12px 13px;border-top:0.5px solid var(--color-border-tertiary)}
+.pb.open{display:block}
+.chev{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;flex-shrink:0;transition:transform .2s}
+.chev.open{transform:rotate(180deg)}
+.badge{font-size:10px;padding:2px 7px;border-radius:3px;display:inline-block;margin-right:3px;margin-bottom:2px}
+.be{background:#EAF3DE;color:#3B6D11}.bm{background:#FAEEDA;color:#854F0B}.bh{background:#FCEBEB;color:#A32D2D}
+.bb{background:#E6F1FB;color:#185FA5}.bg{background:#EAF3DE;color:#3B6D11}.bo{background:#FAEEDA;color:#854F0B}
+.bp{background:#EEEDFE;color:#534AB7}.bt{background:#E1F5EE;color:#0F6E56}.bk{background:#F1EFE8;color:#5F5E5A}
+.sec-t{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:10px}
+.dtxt{font-size:12px;color:var(--color-text-primary);line-height:1.7}
+.code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:9px 11px;border-radius:5px;line-height:1.85;color:var(--color-text-secondary);overflow-x:auto;white-space:pre;margin-top:4px}
+.vis{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:9px 11px;border-radius:5px;line-height:1.85;color:var(--color-text-secondary);overflow-x:auto;white-space:pre;margin-top:4px}
+.krow{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.kw{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:var(--font-mono)}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.prow:last-child{border-bottom:none}
+.tip{background:#E1F5EE;border-left:3px solid #1D9E75;padding:8px 11px;border-radius:0 5px 5px 0;margin-top:8px;font-size:12px;color:#0F6E56;line-height:1.6}
+.cnt{font-size:12px;color:var(--color-text-secondary);margin-bottom:.75rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+
+<div class="w">
+<div class="tabs">
+  <button class="tab active" onclick="go('all')">All Patterns</button>
+  <button class="tab" onclick="go('easy')">Easy</button>
+  <button class="tab" onclick="go('medium')">Medium</button>
+  <button class="tab" onclick="go('hard')">Hard</button>
+  <button class="tab" onclick="go('roadmap')">Roadmap</button>
+</div>
+<div id="tab-all" class="sec active"><div id="all-out"></div></div>
+<div id="tab-easy" class="sec"><div id="easy-out"></div></div>
+<div id="tab-medium" class="sec"><div id="medium-out"></div></div>
+<div id="tab-hard" class="sec"><div id="hard-out"></div></div>
+<div id="tab-roadmap" class="sec"><div id="roadmap-out"></div></div>
+</div>
+
+<script>
+const P=[
+  // ── EASY ─────────────────────────────────────────────────────────
+  {id:"pfx",title:"Prefix Sum",diff:"Easy",cat:"Arrays",
+   badges:["Arrays","Subarray","Range Queries"],
+   desc:"Pre-compute cumulative sums so any subarray sum can be answered in O(1). prefix[i] = sum of arr[0..i-1]. Sum from l to r = prefix[r+1] - prefix[l].",
+   visual:`arr =  [1, 2, 3, 4, 5]
+prefix=[0, 1, 3, 6,10,15]
+Sum(1→3) = prefix[4] - prefix[1] = 10 - 1 = 9  ✓`,
+   keys:["sum of subarray range","range sum queries","count subarrays with sum K","equilibrium index"],
+   approach:`1. Build prefix array: prefix[0]=0, prefix[i]=prefix[i-1]+arr[i-1]
+2. Range sum [l,r] = prefix[r+1] - prefix[l]
+3. For HashMap variant: store prefix sum → index
+   if (prefix[i] - K) exists in map → found subarray`,
+   code:`int[] prefix = new int[n+1];
+for (int i=0;i<n;i++) prefix[i+1]=prefix[i]+arr[i];
+// sum from index l to r (inclusive):
+int sum = prefix[r+1] - prefix[l];`,
+   probs:[{n:"Subarray Sum Equals K",lc:"https://leetcode.com/problems/subarray-sum-equals-k/",d:"m"},{n:"Range Sum Query",lc:"https://leetcode.com/problems/range-sum-query-immutable/",d:"e"},{n:"Find Pivot Index",lc:"https://leetcode.com/problems/find-pivot-index/",d:"e"},{n:"Product of Array Except Self",lc:"https://leetcode.com/problems/product-of-array-except-self/",d:"m"}],
+   trick:"Prefix Sum + HashMap is the combo that solves 'count subarrays with sum K'. Store prefix sum value as key, frequency as value.",when:"Easy"},
+
+  {id:"kadane",title:"Kadane's Algorithm",diff:"Easy",cat:"Arrays",
+   badges:["Arrays","Subarray","DP-lite"],
+   desc:"Find the maximum sum contiguous subarray in O(n). At each index decide: extend the existing subarray OR start fresh from current element — whichever is larger.",
+   visual:`arr = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+curr =  -2  1  -2  4   3  5  6   1  5
+max  =  -2  1   1  4   4  5  6   6  6  → answer = 6`,
+   keys:["maximum sum subarray","largest contiguous sum","max subarray product variant"],
+   approach:`curr = arr[0], max = arr[0]
+for i = 1 to n-1:
+  curr = max(arr[i], curr + arr[i])  ← extend or restart
+  max  = max(max, curr)`,
+   code:`int curr = nums[0], max = nums[0];
+for (int i=1;i<nums.length;i++){
+    curr = Math.max(nums[i], curr+nums[i]);
+    max  = Math.max(max, curr);
+}
+return max;`,
+   probs:[{n:"Maximum Subarray",lc:"https://leetcode.com/problems/maximum-subarray/",d:"m"},{n:"Maximum Product Subarray",lc:"https://leetcode.com/problems/maximum-product-subarray/",d:"m"},{n:"Best Time to Buy & Sell Stock",lc:"https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",d:"e"}],
+   trick:"For max product subarray, track both max AND min (because negative × negative = positive). Two variables instead of one.",when:"Easy"},
+
+  {id:"cyclicSort",title:"Cyclic Sort",diff:"Easy",cat:"Arrays",
+   badges:["Arrays","In-place","Index Tricks"],
+   desc:"When numbers are in range [1, n] or [0, n-1], place each number at its correct index by swapping. O(n) time, O(1) space. After sorting, unplaced numbers reveal missing/duplicate.",
+   visual:`arr = [3, 1, 5, 4, 2]  (range 1..5)
+Place 3 at index 2 → [5, 1, 3, 4, 2]
+Place 5 at index 4 → [2, 1, 3, 4, 5]
+Place 2 at index 1 → [1, 2, 3, 4, 5] ✓`,
+   keys:["find missing number","find duplicate in 1..n","first missing positive","numbers in range [1,n]"],
+   approach:`i = 0
+while i < n:
+  correct = arr[i] - 1   // where this number belongs
+  if arr[i] != arr[correct]:
+    swap(arr[i], arr[correct])  // send to correct spot
+  else: i++             // already in right place`,
+   code:`int i = 0;
+while (i < nums.length) {
+    int correct = nums[i] - 1;
+    if (nums[i]>0 && nums[i]<=nums.length && nums[i]!=nums[correct])
+        swap(nums, i, correct);
+    else i++;
+}`,
+   probs:[{n:"Missing Number",lc:"https://leetcode.com/problems/missing-number/",d:"e"},{n:"Find All Duplicates in Array",lc:"https://leetcode.com/problems/find-all-duplicates-in-an-array/",d:"m"},{n:"First Missing Positive",lc:"https://leetcode.com/problems/first-missing-positive/",d:"h"}],
+   trick:"If numbers are in range [1, n] or [0, n-1], Cyclic Sort is always O(n) with O(1) space. No need for a HashSet.",when:"Easy"},
+
+  {id:"bitman",title:"Bit Manipulation",diff:"Easy–Medium",cat:"Math",
+   badges:["Bits","XOR","Math"],
+   desc:"Use bitwise operations (AND, OR, XOR, shift) to solve problems in O(1) space with no extra data structures. XOR is the superstar: a XOR a = 0, a XOR 0 = a.",
+   visual:`Find single number in [4,1,2,1,2]:
+4 XOR 1 XOR 2 XOR 1 XOR 2
+= 4 XOR (1 XOR 1) XOR (2 XOR 2)
+= 4 XOR 0 XOR 0 = 4 ✓
+
+Check if n is power of 2:
+n=8 → 1000, n-1=0111 → 8 & 7 = 0 ✓`,
+   keys:["single number","missing number","count bits","power of 2","swap without temp variable","subset generation"],
+   approach:`Key operations:
+  n & 1        → check if n is odd
+  n >> 1       → divide by 2
+  n << 1       → multiply by 2
+  a ^ b ^ b    → a (XOR cancels pairs)
+  n & (n-1)    → clears lowest set bit
+  n & (-n)     → isolates lowest set bit`,
+   code:`// Single Number (XOR trick)
+int result = 0;
+for (int n : nums) result ^= n;
+return result;
+
+// Count set bits (Brian Kernighan)
+int count = 0;
+while (n != 0) { n &= (n-1); count++; }`,
+   probs:[{n:"Single Number",lc:"https://leetcode.com/problems/single-number/",d:"e"},{n:"Number of 1 Bits",lc:"https://leetcode.com/problems/number-of-1-bits/",d:"e"},{n:"Counting Bits",lc:"https://leetcode.com/problems/counting-bits/",d:"e"},{n:"Sum of Two Integers (no +)",lc:"https://leetcode.com/problems/sum-of-two-integers/",d:"m"}],
+   trick:"XOR is the most powerful bit trick: use it when you need to find the ONE element that appears an odd number of times. Pairs cancel out to zero.",when:"Easy"},
+
+  // ── MEDIUM ───────────────────────────────────────────────────────
+  {id:"mergeint",title:"Merge Intervals",diff:"Medium",cat:"Arrays",
+   badges:["Arrays","Sorting","Intervals"],
+   desc:"Sort intervals by start time. Then scan left to right — if the current interval overlaps with the last merged interval, extend it. Otherwise add a new interval.",
+   visual:`Input: [[1,3],[2,6],[8,10],[15,18]]
+Sort:   [[1,3],[2,6],[8,10],[15,18]]
+        [1,3] + [2,6] → overlap → merge → [1,6]
+        [1,6] + [8,10] → no overlap → add [8,10]
+Output: [[1,6],[8,10],[15,18]]`,
+   keys:["merge overlapping intervals","insert interval","find free time","meeting rooms","calendar conflicts"],
+   approach:`1. Sort intervals by start time
+2. result = [intervals[0]]
+3. For each next interval:
+   if next.start <= result.last.end:
+     result.last.end = max(result.last.end, next.end)  ← merge
+   else:
+     result.add(next interval)`,
+   code:`Arrays.sort(intervals, (a,b)->a[0]-b[0]);
+List<int[]> res = new ArrayList<>();
+res.add(intervals[0]);
+for (int[] cur : intervals) {
+    int[] last = res.get(res.size()-1);
+    if (cur[0] <= last[1]) last[1]=Math.max(last[1],cur[1]);
+    else res.add(cur);
+}`,
+   probs:[{n:"Merge Intervals",lc:"https://leetcode.com/problems/merge-intervals/",d:"m"},{n:"Insert Interval",lc:"https://leetcode.com/problems/insert-interval/",d:"m"},{n:"Meeting Rooms II",lc:"https://leetcode.com/problems/meeting-rooms-ii/",d:"m"},{n:"Non-overlapping Intervals",lc:"https://leetcode.com/problems/non-overlapping-intervals/",d:"m"}],
+   trick:"Always sort by start time first. Overlap condition: next.start <= last.end. When merging, take the MAX of the two end times.",when:"Medium"},
+
+  {id:"topk",title:"Top K Elements (Heap)",diff:"Medium",cat:"Arrays",
+   badges:["Heap","Priority Queue","Sorting"],
+   desc:"Use a Min-Heap of size K to track the K largest elements. For every new element, if it's larger than heap top, replace it. Final heap contains K largest in O(n log K).",
+   visual:`K=3, arr=[3,1,5,12,2,11]
+MinHeap(size 3):
+add 3 → [3]
+add 1 → [1,3]
+add 5 → [1,3,5]
+12>1 → pop 1, add 12 → [3,5,12]
+2<3 → skip
+11>3 → pop 3, add 11 → [5,11,12]
+Top K = {5,11,12} ✓`,
+   keys:["K largest elements","K most frequent","K closest points","top K","find median","kth smallest/largest"],
+   approach:`K Largest → use Min-Heap of size K
+  if heap.size < K: add element
+  else if element > heap.peek(): poll, add element
+
+K Smallest → use Max-Heap of size K
+  if element < heap.peek(): poll, add element
+
+Kth element → heap.peek() is the answer`,
+   code:`PriorityQueue<Integer> heap = new PriorityQueue<>(); // min-heap
+for (int n : nums) {
+    heap.offer(n);
+    if (heap.size() > k) heap.poll(); // remove smallest
+}
+return heap.peek(); // kth largest`,
+   probs:[{n:"Kth Largest Element in Array",lc:"https://leetcode.com/problems/kth-largest-element-in-an-array/",d:"m"},{n:"Top K Frequent Elements",lc:"https://leetcode.com/problems/top-k-frequent-elements/",d:"m"},{n:"K Closest Points to Origin",lc:"https://leetcode.com/problems/k-closest-points-to-origin/",d:"m"},{n:"Find Median from Data Stream",lc:"https://leetcode.com/problems/find-median-from-data-stream/",d:"h"}],
+   trick:"K Largest → Min-Heap (counterintuitive but correct: you eject the smallest, keeping the K largest). K Smallest → Max-Heap.",when:"Medium"},
+
+  {id:"greedy",title:"Greedy",diff:"Medium",cat:"Strategy",
+   badges:["Optimization","Intervals","Locally Optimal"],
+   desc:"At each step, make the locally optimal choice hoping it leads to a globally optimal solution. No backtracking. Works when 'greedy choice property' holds — taking the best option now never hurts future options.",
+   visual:`Activity Selection (pick max non-overlapping meetings):
+Sort by END time: [(1,2),(0,3),(3,5),(5,7),(3,9)]
+Sort →           [(1,2),(0,3),(3,5),(5,7),(3,9)]
+Pick (1,2). Next start≥2? (0,3)NO (3,5)YES pick it.
+Next start≥5? (5,7)YES pick it.
+Result: 3 meetings ✓ (greedy: always pick earliest end)`,
+   keys:["maximum number of non-overlapping","minimum number to cover","can you reach end","jump game","assign tasks greedily","minimum platforms"],
+   approach:`Greedy usually involves:
+1. Sorting by a key property (end time, start time, value/weight ratio)
+2. Scanning once, making the greedy pick at each step
+3. Proving: picking the greedy choice never blocks a better future choice
+
+Ask: does 'take the best now' ever hurt later? If no → greedy works.`,
+   code:`// Jump Game — can you reach the end?
+int maxReach = 0;
+for (int i=0;i<nums.length;i++){
+    if (i > maxReach) return false; // can't reach i
+    maxReach = Math.max(maxReach, i+nums[i]);
+}
+return true;`,
+   probs:[{n:"Jump Game",lc:"https://leetcode.com/problems/jump-game/",d:"m"},{n:"Jump Game II (min jumps)",lc:"https://leetcode.com/problems/jump-game-ii/",d:"m"},{n:"Non-overlapping Intervals",lc:"https://leetcode.com/problems/non-overlapping-intervals/",d:"m"},{n:"Gas Station",lc:"https://leetcode.com/problems/gas-station/",d:"m"},{n:"Candy",lc:"https://leetcode.com/problems/candy/",d:"h"}],
+   trick:"If greedy isn't obvious, try sorting by end time (intervals), by ratio (knapsack), or by smallest first. The correct sort key usually unlocks the greedy.",when:"Medium"},
+
+  {id:"matrix",title:"Matrix DFS / BFS (2D Grid)",diff:"Medium",cat:"Graph",
+   badges:["Grid","DFS","BFS","Islands"],
+   desc:"Treat each cell as a node. Its neighbours are the 4 (or 8) adjacent cells. Use DFS to explore connected regions or BFS for shortest path in a grid.",
+   visual:`Grid: 1=land, 0=water. Count islands.
+1 1 0 0
+0 1 0 0   → island 1: cells (0,0)(0,1)(1,1)
+0 0 1 0   → island 2: cell (2,2)
+0 0 0 1   → island 3: cell (3,3)
+Answer = 3`,
+   keys:["number of islands","flood fill","shortest path in grid","word search in matrix","surrounded regions","rotten oranges"],
+   approach:`DFS on grid:
+  if out of bounds OR visited OR wall: return
+  mark visited
+  for each of 4 directions: dfs(row+dr, col+dc)
+
+4 directions trick:
+  int[] dr = {0,0,1,-1}
+  int[] dc = {1,-1,0,0}`,
+   code:`int[] dr={0,0,1,-1}, dc={1,-1,0,0};
+void dfs(char[][] g, int r, int c){
+    if(r<0||r>=g.length||c<0||c>=g[0].length||g[r][c]!='1') return;
+    g[r][c]='0'; // mark visited
+    for(int d=0;d<4;d++) dfs(g,r+dr[d],c+dc[d]);
+}`,
+   probs:[{n:"Number of Islands",lc:"https://leetcode.com/problems/number-of-islands/",d:"m"},{n:"Flood Fill",lc:"https://leetcode.com/problems/flood-fill/",d:"e"},{n:"Rotten Oranges (BFS)",lc:"https://leetcode.com/problems/rotting-oranges/",d:"m"},{n:"Walls and Gates",lc:"https://leetcode.com/problems/walls-and-gates/",d:"m"},{n:"Pacific Atlantic Water Flow",lc:"https://leetcode.com/problems/pacific-atlantic-water-flow/",d:"m"}],
+   trick:"For shortest path in a grid, use BFS (not DFS). BFS explores level by level, so the first time you reach the target is the shortest path.",when:"Medium"},
+
+  {id:"inplaceLL",title:"In-place Linked List Reversal",diff:"Medium",cat:"Linked List",
+   badges:["Linked List","In-place","Pointers"],
+   desc:"Reverse a linked list or a portion of it without extra memory by manipulating next pointers. Uses 3 pointers: prev, curr, next. Key to many linked list problems.",
+   visual:`Reverse 1→2→3→4→5:
+prev=null, curr=1
+Step1: next=2, 1.next=null, prev=1, curr=2
+Step2: next=3, 2.next=1,   prev=2, curr=3
+Step3: next=4, 3.next=2,   prev=3, curr=4
+Step4: next=5, 4.next=3,   prev=4, curr=5
+Step5: next=null,5.next=4, prev=5, curr=null
+New head = prev = 5 ✓`,
+   keys:["reverse a linked list","reverse sublist","reverse k-group","palindrome linked list","reorder list"],
+   approach:`Three pointers: prev=null, curr=head
+while curr != null:
+  next = curr.next    // save next
+  curr.next = prev    // reverse the arrow
+  prev = curr         // move prev forward
+  curr = next         // move curr forward
+new head = prev`,
+   code:`ListNode prev=null, curr=head;
+while(curr!=null){
+    ListNode next=curr.next;
+    curr.next=prev;
+    prev=curr;
+    curr=next;
+}
+return prev; // new head`,
+   probs:[{n:"Reverse Linked List",lc:"https://leetcode.com/problems/reverse-linked-list/",d:"e"},{n:"Reverse Linked List II (sublist)",lc:"https://leetcode.com/problems/reverse-linked-list-ii/",d:"m"},{n:"Reverse Nodes in k-Group",lc:"https://leetcode.com/problems/reverse-nodes-in-k-group/",d:"h"},{n:"Reorder List",lc:"https://leetcode.com/problems/reorder-list/",d:"m"}],
+   trick:"Always draw the pointer state after each step on paper. The three operations per step always happen in this exact order: save next → flip arrow → move prev → move curr.",when:"Medium"},
+
+  {id:"topo",title:"Topological Sort",diff:"Medium",cat:"Graph",
+   badges:["Graph","DAG","Ordering"],
+   desc:"Order nodes in a Directed Acyclic Graph (DAG) so that every edge points forward. Used for scheduling tasks with dependencies. Two approaches: BFS (Kahn's) or DFS post-order.",
+   visual:`Dependencies: A→C, B→C, C→D
+In-degrees: A=0, B=0, C=2, D=1
+Start with 0 in-degree: [A, B]
+Process A → C's in-degree=1
+Process B → C's in-degree=0 → add C
+Process C → D's in-degree=0 → add D
+Order: A, B, C, D ✓`,
+   keys:["task scheduling with dependencies","build order","course prerequisites","detect cycle in directed graph","alien dictionary order"],
+   approach:`Kahn's BFS Algorithm:
+1. Compute in-degree for each node
+2. Add all nodes with in-degree 0 to queue
+3. While queue not empty:
+   - Poll a node, add to result
+   - For each neighbour: in-degree--
+   - If neighbour's in-degree == 0: add to queue
+4. If result.size != n: cycle exists (impossible)`,
+   code:`int[] indegree = new int[n];
+for(int[] e:edges) indegree[e[1]]++;
+Queue<Integer> q=new LinkedList<>();
+for(int i=0;i<n;i++) if(indegree[i]==0) q.offer(i);
+List<Integer> order=new ArrayList<>();
+while(!q.isEmpty()){
+    int node=q.poll(); order.add(node);
+    for(int nei:graph.get(node)) if(--indegree[nei]==0) q.offer(nei);
+}`,
+   probs:[{n:"Course Schedule",lc:"https://leetcode.com/problems/course-schedule/",d:"m"},{n:"Course Schedule II",lc:"https://leetcode.com/problems/course-schedule-ii/",d:"m"},{n:"Alien Dictionary",lc:"https://leetcode.com/problems/alien-dictionary/",d:"h"},{n:"Minimum Height Trees",lc:"https://leetcode.com/problems/minimum-height-trees/",d:"m"}],
+   trick:"If the result list has fewer nodes than total — a cycle was detected. Cycle = impossible ordering. This is how Course Schedule I is solved.",when:"Medium"},
+
+  {id:"unionfind",title:"Union Find (Disjoint Set)",diff:"Medium",cat:"Graph",
+   badges:["Graph","Connected Components","Hard-Medium"],
+   desc:"Track which elements belong to the same connected component. Two operations: Find (which group?) and Union (merge two groups). With path compression and rank, both run nearly O(1).",
+   visual:`nodes: 1,2,3,4,5
+union(1,2): parent[2]=1 → {1,2} {3} {4} {5}
+union(3,4): parent[4]=3 → {1,2} {3,4} {5}
+union(2,3): parent[3]=1 → {1,2,3,4} {5}
+find(4) → 4→3→1 (root=1) ✓`,
+   keys:["number of connected components","detect cycle in undirected graph","accounts merge","redundant connection","check if path exists"],
+   approach:`parent[i] = i initially (each node is its own root)
+
+find(x): if parent[x]==x return x
+         else return parent[x]=find(parent[x]) ← path compression
+
+union(x,y):
+  rootX=find(x), rootY=find(y)
+  if rootX!=rootY: parent[rootY]=rootX`,
+   code:`int[] parent, rank;
+int find(int x){
+    if(parent[x]!=x) parent[x]=find(parent[x]);
+    return parent[x];
+}
+boolean union(int x, int y){
+    int px=find(x),py=find(y);
+    if(px==py) return false; // same component
+    if(rank[px]<rank[py]) parent[px]=py;
+    else if(rank[px]>rank[py]) parent[py]=px;
+    else { parent[py]=px; rank[px]++; }
+    return true;
+}`,
+   probs:[{n:"Number of Connected Components",lc:"https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",d:"m"},{n:"Redundant Connection",lc:"https://leetcode.com/problems/redundant-connection/",d:"m"},{n:"Accounts Merge",lc:"https://leetcode.com/problems/accounts-merge/",d:"m"},{n:"Graph Valid Tree",lc:"https://leetcode.com/problems/graph-valid-tree/",d:"m"}],
+   trick:"Use Union-Find when you need to merge groups and check connectivity. Prefer it over BFS/DFS when connections are added dynamically.",when:"Medium"},
+
+  // ── HARD ─────────────────────────────────────────────────────────
+  {id:"trie",title:"Trie (Prefix Tree)",diff:"Medium–Hard",cat:"Strings",
+   badges:["Strings","Tree","Prefix Search"],
+   desc:"A tree where each node represents one character. Words that share a prefix share the same path from root. Enables O(L) insert/search where L = word length.",
+   visual:`Insert: "car", "cat", "do", "dog"
+root
+ ├─ c
+ │   └─ a
+ │       ├─ r (end)
+ │       └─ t (end)
+ └─ d
+     └─ o (end)
+         └─ g (end)
+startsWith("ca") → true ✓`,
+   keys:["autocomplete","search with prefix","longest word with all prefixes","word search II","replace words","implement a dictionary"],
+   approach:`TrieNode: children[26] + boolean isEnd
+Insert: walk/create nodes for each char, set isEnd=true
+Search: walk nodes for each char, return isEnd
+StartsWith: walk nodes for each char, return true if all exist`,
+   code:`class TrieNode{TrieNode[]c=new TrieNode[26];boolean end;}
+TrieNode root=new TrieNode();
+void insert(String w){
+    TrieNode cur=root;
+    for(char ch:w.toCharArray()){
+        int i=ch-'a';
+        if(cur.c[i]==null) cur.c[i]=new TrieNode();
+        cur=cur.c[i];
+    }
+    cur.end=true;
+}`,
+   probs:[{n:"Implement Trie",lc:"https://leetcode.com/problems/implement-trie-prefix-tree/",d:"m"},{n:"Word Search II",lc:"https://leetcode.com/problems/word-search-ii/",d:"h"},{n:"Design Add and Search Words",lc:"https://leetcode.com/problems/design-add-and-search-words-data-structure/",d:"m"},{n:"Replace Words",lc:"https://leetcode.com/problems/replace-words/",d:"m"}],
+   trick:"Build the Trie class once perfectly, memorise it. Then every Trie problem is just using this data structure creatively.",when:"Hard"},
+
+  {id:"dp2d",title:"2D Dynamic Programming",diff:"Hard",cat:"DP",
+   badges:["DP","Strings","Grid","Hard"],
+   desc:"When a problem has TWO changing dimensions (two strings, a 2D grid), the DP table becomes 2D. dp[i][j] represents the answer considering first i of one thing and first j of another.",
+   visual:`LCS of "abcde" and "ace":
+    ''  a  c  e
+''   0  0  0  0
+a    0  1  1  1
+b    0  1  1  1
+c    0  1  2  2
+d    0  1  2  2
+e    0  1  2  3  ← LCS length = 3 (ace)`,
+   keys:["longest common subsequence","edit distance","unique paths in grid","coin change 2D","minimum path sum","distinct subsequences","interleaving strings"],
+   approach:`Define: dp[i][j] = answer for first i of input1, first j of input2
+Base: dp[0][j]=0, dp[i][0]=0 (empty strings)
+Transition:
+  if chars match: dp[i][j] = dp[i-1][j-1] + 1
+  else:           dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+Answer = dp[m][n]`,
+   code:`// Longest Common Subsequence
+int[][] dp=new int[m+1][n+1];
+for(int i=1;i<=m;i++)
+    for(int j=1;j<=n;j++){
+        if(s1.charAt(i-1)==s2.charAt(j-1))
+            dp[i][j]=dp[i-1][j-1]+1;
+        else
+            dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]);
+    }
+return dp[m][n];`,
+   probs:[{n:"Longest Common Subsequence",lc:"https://leetcode.com/problems/longest-common-subsequence/",d:"m"},{n:"Edit Distance",lc:"https://leetcode.com/problems/edit-distance/",d:"m"},{n:"Unique Paths",lc:"https://leetcode.com/problems/unique-paths/",d:"m"},{n:"Minimum Path Sum",lc:"https://leetcode.com/problems/minimum-path-sum/",d:"m"},{n:"Distinct Subsequences",lc:"https://leetcode.com/problems/distinct-subsequences/",d:"h"}],
+   trick:"The key is nailing the DP definition. Write 'dp[i][j] = ___' in plain English before writing a single line of code. If the definition is clear, the recurrence follows naturally.",when:"Hard"},
+
+  {id:"segTree",title:"Sliding Window + HashMap (Advanced)",diff:"Hard",cat:"Strings",
+   badges:["Strings","HashMap","Hard"],
+   desc:"Advanced form of Sliding Window where you track complex conditions inside the window using a HashMap. The window shrinks only when a specific violation occurs, not a simple single value.",
+   visual:`Minimum Window Substring: s="ADOBECODEBANC" t="ABC"
+need: {A:1,B:1,C:1}   formed=0 required=3
+Expand right until all chars found:
+window "ADOBEC" → formed=3 ✓ record len=6
+Shrink left: remove A → formed=2, expand right...
+... → minimum window = "BANC" len=4`,
+   keys:["minimum window containing all","longest substring with at most K distinct","max consecutive ones with replacements","fruit into baskets","permutation in string"],
+   approach:`have={}, need=freq map of target, formed=0
+left=0, result=[]
+for right in s:
+  add s[right] to have
+  if have[c]==need[c]: formed++
+  while formed==required:
+    update result (min window)
+    remove s[left] from have
+    if have[c]<need[c]: formed--
+    left++`,
+   code:`Map<Character,Integer> need=new HashMap<>(), have=new HashMap<>();
+for(char c:t.toCharArray()) need.merge(c,1,Integer::sum);
+int formed=0,required=need.size(),l=0,minLen=Integer.MAX_VALUE;
+for(int r=0;r<s.length();r++){
+    have.merge(s.charAt(r),1,Integer::sum);
+    if(need.containsKey(s.charAt(r))&&have.get(s.charAt(r)).equals(need.get(s.charAt(r)))) formed++;
+    while(formed==required){ /* shrink */ }
+}`,
+   probs:[{n:"Minimum Window Substring",lc:"https://leetcode.com/problems/minimum-window-substring/",d:"h"},{n:"Longest Substring with At Most K Distinct",lc:"https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",d:"m"},{n:"Permutation in String",lc:"https://leetcode.com/problems/permutation-in-string/",d:"m"},{n:"Fruit Into Baskets",lc:"https://leetcode.com/problems/fruit-into-baskets/",d:"m"}],
+   trick:"Track 'formed' (how many unique chars met their required frequency). Window shrinks only when formed==required. This avoids re-scanning.",when:"Hard"}
+];
+
+const CATS={
+  "Arrays":["pfx","kadane","cyclicSort","bitman"],
+  "Strings & Sliding":["mergeint","matrix","segTree","trie"],
+  "Linked List":["inplaceLL"],
+  "Graph & Tree":["topo","unionfind","matrix"],
+  "Heap & Greedy":["topk","greedy"],
+  "Dynamic Programming":["dp2d"]
+};
+
+function diffBadge(d){
+  if(d.startsWith("Easy")&&!d.includes("Medium")) return '<span class="badge be">Easy</span>';
+  if(d.startsWith("Medium")&&!d.includes("Hard")) return '<span class="badge bm">Medium</span>';
+  if(d.includes("Hard")) return '<span class="badge bh">'+d+'</span>';
+  return '<span class="badge bm">'+d+'</span>';
+}
+function patBadges(p){return p.badges.map(b=>'<span class="badge bb">'+b+'</span>').join('')}
+function probDiff(d){return d==='e'?'<span class="badge be">Easy</span>':d==='m'?'<span class="badge bm">Med</span>':'<span class="badge bh">Hard</span>'}
+
+function renderPat(p){
+  return `<div class="pc"><div class="ph" onclick="tog('${p.id}')">
+    <div style="flex:1">${diffBadge(p.diff)} <span class="pt">${p.title}</span>
+    <div style="margin-top:4px">${patBadges(p)}</div></div>
+    <span class="chev" id="ch_${p.id}">▼</span>
+  </div>
+  <div class="pb" id="pb_${p.id}">
+    <div class="sec-t">What is this pattern?</div><div class="dtxt">${p.desc}</div>
+    <div class="sec-t">How to identify — trigger keywords</div>
+    <div class="krow">${p.keys.map(k=>'<span class="kw">'+k+'</span>').join('')}</div>
+    <div class="sec-t">Visual trace</div><div class="vis">${p.visual}</div>
+    <div class="sec-t">Approach / template</div><div class="vis">${p.approach}</div>
+    <div class="sec-t">Java code</div><div class="code">${p.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    <div class="sec-t">Practice problems</div>
+    ${p.probs.map(pr=>`<div class="prow"><a href="${pr.lc}" target="_blank" style="color:var(--color-text-primary);text-decoration:none">${pr.n}</a>${probDiff(pr.d)}</div>`).join('')}
+    <div class="tip">⚡ Key trick: ${p.trick}</div>
+  </div></div>`;
+}
+
+function tog(id){
+  const b=document.getElementById('pb_'+id),ch=document.getElementById('ch_'+id);
+  ch.classList.toggle('open',b.classList.toggle('open'));
+}
+
+function buildAll(){
+  const cats={
+    "🟢 Easy Patterns (Master these first)":P.filter(p=>p.when==="Easy"),
+    "🟡 Medium Patterns":P.filter(p=>p.when==="Medium"),
+    "🔴 Hard Patterns":P.filter(p=>p.when==="Hard")
+  };
+  let html=`<div class="pat-intro">22 total patterns across Easy, Medium, and Hard. <strong style="color:var(--color-text-primary)">Start from the top.</strong> Each pattern unlocks a category of problems. Master identification keywords — they appear in problem statements as signals.</div>`;
+  Object.entries(cats).forEach(([label,list])=>{
+    if(!list.length)return;
+    html+=`<div class="cat-head">${label} — ${list.length} patterns</div>`;
+    list.forEach(p=>html+=renderPat(p));
+  });
+  document.getElementById('all-out').innerHTML=html;
+}
+
+function buildFiltered(diff,outId){
+  const list=P.filter(p=>p.when===diff||p.diff.includes(diff));
+  let html=`<div class="cnt">${list.length} patterns at this level</div>`;
+  list.forEach(p=>html+=renderPat(p));
+  document.getElementById(outId).innerHTML=html;
+}
+
+function buildRoadmap(){
+  const phases=[
+    {label:"Month 1 — Foundations",color:"be",items:[
+      {p:"HashMap / Frequency Count",why:"Solves ~40% of Easy problems"},
+      {p:"Two Pointers",why:"Sorted array pair problems, remove duplicates"},
+      {p:"Prefix Sum",why:"Fast range sum queries, subarray sum"},
+      {p:"Kadane's Algorithm",why:"Max subarray — classic pattern"},
+      {p:"Binary Search",why:"Must know cold for any interview"},
+      {p:"Cyclic Sort",why:"Missing/duplicate numbers in O(n) O(1)"},
+      {p:"Bit Manipulation",why:"Single number, count bits — easy wins"},
+    ]},
+    {label:"Month 2 — Core Patterns",color:"bm",items:[
+      {p:"Sliding Window",why:"Substring/subarray window problems"},
+      {p:"Fast & Slow Pointers",why:"Linked list middle, cycle detection"},
+      {p:"In-place Linked List Reversal",why:"Reverse sublist, k-group reversal"},
+      {p:"Merge Intervals",why:"Calendar/scheduling problems"},
+      {p:"Top K Elements (Heap)",why:"Kth largest, top K frequent"},
+      {p:"Greedy",why:"Jump Game, interval scheduling"},
+      {p:"Matrix DFS/BFS",why:"Islands, flood fill, shortest grid path"},
+    ]},
+    {label:"Month 3 — Advanced",color:"bh",items:[
+      {p:"Tree DFS (Recursion Template)",why:"90% of tree problems"},
+      {p:"Topological Sort",why:"Dependencies, scheduling, cycle detection"},
+      {p:"Union Find",why:"Connected components, redundant edges"},
+      {p:"Backtracking",why:"All combinations, permutations, N-Queens"},
+      {p:"1D Dynamic Programming",why:"House robber, coin change, LIS"},
+      {p:"Trie",why:"Prefix matching, autocomplete, Word Search II"},
+      {p:"2D Dynamic Programming",why:"LCS, Edit Distance, grid paths"},
+      {p:"Sliding Window + HashMap (Advanced)",why:"Min window substring and variants"},
+    ]}
+  ];
+  let html='<div class="pat-intro">Follow this order. Each phase builds on the previous. Do not skip ahead — earlier patterns appear as subproblems inside harder ones.</div>';
+  phases.forEach(ph=>{
+    html+=`<div class="cat-head">${ph.label}</div>`;
+    ph.items.forEach((it,i)=>{
+      html+=`<div style="border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px">
+        <div style="min-width:20px;height:20px;border-radius:50%;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);flex-shrink:0;margin-top:1px">${i+1}</div>
+        <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${it.p}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${it.why}</div></div></div>`;
+    });
+  });
+  document.getElementById('roadmap-out').innerHTML=html;
+}
+
+function go(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  const names=['all','easy','medium','hard','roadmap'];
+  document.querySelectorAll('.tab')[names.indexOf(name)].classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+buildAll();
+buildFiltered('Easy','easy-out');
+buildFiltered('Medium','medium-out');
+buildFiltered('Hard','hard-out');
+buildRoadmap();
+</script>

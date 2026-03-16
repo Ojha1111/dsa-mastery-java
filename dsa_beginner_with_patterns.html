@@ -1,0 +1,713 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+.tab{padding:8px 12px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font-sans)}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.section{display:none}.section.active{display:block}
+.phase-header{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:5px 10px;border-radius:4px;margin:1.5rem 0 .75rem}
+.day-card{border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.day-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.day-num{font-size:11px;font-weight:500;color:var(--color-text-secondary)}
+.day-topic{font-size:11px;padding:2px 8px;border-radius:3px}
+.t-learn{background:#E6F1FB;color:#185FA5}.t-practice{background:#EAF3DE;color:#3B6D11}.t-revise{background:#FAEEDA;color:#854F0B}
+.task-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0}
+.task-row input{margin-top:3px;flex-shrink:0;accent-color:#1D9E75}
+.task-label{font-size:13px;color:var(--color-text-primary);line-height:1.5;cursor:pointer}
+.task-label.done{text-decoration:line-through;color:var(--color-text-tertiary)}
+.lc-link{font-size:10px;color:#185FA5;text-decoration:none;margin-left:4px}
+.lc-link:hover{text-decoration:underline}
+.prog-wrap{margin-bottom:1.5rem}
+.prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:6px}
+.prog-track{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:#1D9E75;border-radius:3px;transition:width .3s}
+.ds-card{border:0.5px solid var(--color-border-tertiary);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.ds-head{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--color-background-primary)}
+.ds-head:hover{background:var(--color-background-secondary)}
+.ds-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.ds-body{display:none;padding:12px 14px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.ds-body.open{display:block}
+.ds-section{margin-bottom:10px}
+.ds-section-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.ds-text{font-size:12px;color:var(--color-text-primary);line-height:1.7}
+.code-block{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:10px 12px;border-radius:6px;line-height:1.8;color:var(--color-text-secondary);overflow-x:auto;white-space:pre}
+.step{display:flex;gap:10px;margin-bottom:6px}
+.step-num{width:20px;height:20px;border-radius:50%;background:#E6F1FB;color:#185FA5;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text{font-size:12px;color:var(--color-text-primary);line-height:1.6}
+.c-badge{font-size:11px;padding:3px 8px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.c-good{background:#EAF3DE;color:#3B6D11}.c-ok{background:#FAEEDA;color:#854F0B}.c-bad{background:#FCEBEB;color:#A32D2D}
+.tip-box{background:#E1F5EE;border-left:3px solid #1D9E75;padding:8px 12px;border-radius:0 6px 6px 0;margin-top:8px}
+.tip-text{font-size:12px;color:#0F6E56;line-height:1.6}
+.algo-mini{border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:10px;cursor:pointer}
+.algo-mini:hover{background:var(--color-background-secondary)}
+.algo-mini.selected{border-color:#185FA5;background:#E6F1FB}
+.algo-mini-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.algo-mini-tag{font-size:10px;color:var(--color-text-secondary)}
+.algo-detail{border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:14px;display:none}
+.algo-detail.show{display:block}
+.chevron{font-size:12px;color:var(--color-text-tertiary);transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+/* Pattern Guide styles */
+.pat-filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.pat-filter{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;color:var(--color-text-secondary);font-family:var(--font-sans)}
+.pat-filter.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.pat-card{border:0.5px solid var(--color-border-tertiary);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.pat-head{padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.pat-head:hover{background:var(--color-background-secondary)}
+.pat-badge{font-size:10px;padding:2px 7px;border-radius:3px;display:inline-block;margin-right:4px;margin-bottom:2px}
+.pb-g{background:#EAF3DE;color:#3B6D11}.pb-b{background:#E6F1FB;color:#185FA5}
+.pb-o{background:#FAEEDA;color:#854F0B}.pb-r{background:#FCEBEB;color:#A32D2D}
+.pb-p{background:#EEEDFE;color:#534AB7}.pb-t{background:#E1F5EE;color:#0F6E56}
+.pat-body{display:none;padding:12px 14px;border-top:0.5px solid var(--color-border-tertiary)}
+.pat-body.open{display:block}
+.keyword-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.keyword{font-size:11px;padding:2px 8px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:var(--font-mono)}
+.prob-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.prob-row:last-child{border-bottom:none}
+.diff-e{color:#3B6D11;font-size:10px;padding:1px 6px;background:#EAF3DE;border-radius:3px}
+.diff-m{color:#854F0B;font-size:10px;padding:1px 6px;background:#FAEEDA;border-radius:3px}
+.diff-h{color:#A32D2D;font-size:10px;padding:1px 6px;background:#FCEBEB;border-radius:3px}
+.trick-item{font-size:12px;color:var(--color-text-primary);line-height:1.7;padding:3px 0 3px 10px;border-left:2px solid var(--color-border-secondary);margin-bottom:4px}
+.visual-box{background:var(--color-background-secondary);border-radius:6px;padding:10px 12px;font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);line-height:1.9;margin-top:6px;overflow-x:auto;white-space:pre}
+.pat-intro{font-size:12px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7;background:var(--color-background-secondary);padding:10px 12px;border-radius:6px}
+</style>
+
+<div class="wrap">
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('plan')">📅 Day Plan</button>
+  <button class="tab" onclick="switchTab('patterns')">🎯 Patterns</button>
+  <button class="tab" onclick="switchTab('ds')">🧱 Data Structures</button>
+  <button class="tab" onclick="switchTab('algo')">⚙️ Algorithms</button>
+  <button class="tab" onclick="switchTab('how')">🧠 How to Solve</button>
+</div>
+
+<div id="tab-plan" class="section active">
+  <div class="prog-wrap">
+    <div class="prog-top"><span>Progress</span><span id="prog-txt">0 / 0 tasks done</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="plan-out"></div>
+</div>
+
+<div id="tab-patterns" class="section">
+  <div id="patterns-out"></div>
+</div>
+
+<div id="tab-ds" class="section"><div id="ds-out"></div></div>
+<div id="tab-algo" class="section"><div id="algo-out"></div></div>
+<div id="tab-how" class="section"><div id="how-out"></div></div>
+</div>
+
+<script>
+const plan=[
+  {phase:"Phase 1 — Foundations (Days 1–7)",days:[
+    {d:1,type:"learn",topic:"Java Setup & Basics",tasks:[{t:"Install IntelliJ IDEA Community (free) + JDK 17"},{t:"Learn: variables, int, String, boolean, if/else, for loop"},{t:"Write: print numbers 1–10, find even numbers, sum of array"}]},
+    {d:2,type:"learn",topic:"Arrays Basics",tasks:[{t:"Learn: how array works in memory, index, length"},{t:"Practice: find max element, reverse an array, count even numbers"},{t:"Learn: ArrayList vs array (when to use which)"}]},
+    {d:3,type:"learn",topic:"HashMap & HashSet Basics",tasks:[{t:"Learn: what HashMap is — key/value store, O(1) lookup"},{t:"Practice: count frequency of each element in array"},{t:"Learn: HashSet — stores unique elements only"}]},
+    {d:4,type:"practice",topic:"First LeetCode Problem!",tasks:[{t:"Two Sum — read 3 times, dry run on paper first",lc:"https://leetcode.com/problems/two-sum/",ln:"#1"},{t:"Write brute force O(n²) first, then optimize with HashMap"}]},
+    {d:5,type:"practice",topic:"Array Problems",tasks:[{t:"Best Time to Buy and Sell Stock",lc:"https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",ln:"#121"},{t:"Track min price seen so far as you scan right"}]},
+    {d:6,type:"practice",topic:"Array Problems",tasks:[{t:"Product of Array Except Self",lc:"https://leetcode.com/problems/product-of-array-except-self/",ln:"#238"},{t:"Longest Consecutive Sequence",lc:"https://leetcode.com/problems/longest-consecutive-sequence/",ln:"#128"}]},
+    {d:7,type:"revise",topic:"Revision Day",tasks:[{t:"Redo Day 4–6 problems without looking at solutions"},{t:"Write down: what pattern did each problem use?"},{t:"Setup GitHub repo dsa-mastery-java, push your solutions"}]}
+  ]},
+  {phase:"Phase 2 — Sorting & Searching (Days 8–14)",days:[
+    {d:8,type:"learn",topic:"Sorting Algorithms",tasks:[{t:"Understand Bubble Sort — visualize step by step on paper"},{t:"Understand Selection Sort & Insertion Sort"},{t:"Learn when Java's Arrays.sort() uses what internally"}]},
+    {d:9,type:"learn",topic:"Merge Sort & Quick Sort",tasks:[{t:"Learn Merge Sort — divide array in half, sort, merge back"},{t:"Learn Quick Sort — pick pivot, partition, recurse"},{t:"Write Merge Sort by hand (most asked in interviews)"}]},
+    {d:10,type:"learn",topic:"Binary Search Concept",tasks:[{t:"Understand why sorted array allows O(log n) search"},{t:"Write Binary Search from scratch 3 times until natural"},{t:"Binary Search",lc:"https://leetcode.com/problems/binary-search/",ln:"#704"}]},
+    {d:11,type:"practice",topic:"Binary Search Problems",tasks:[{t:"Find First and Last Position of Element",lc:"https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",ln:"#34"},{t:"Search in Rotated Sorted Array",lc:"https://leetcode.com/problems/search-in-rotated-sorted-array/",ln:"#33"}]},
+    {d:12,type:"practice",topic:"More Searching",tasks:[{t:"Find Peak Element",lc:"https://leetcode.com/problems/find-peak-element/",ln:"#162"},{t:"Kth Largest Element in Array",lc:"https://leetcode.com/problems/kth-largest-element-in-an-array/",ln:"#215"}]},
+    {d:13,type:"practice",topic:"Prefix Sum + Sliding Window Intro",tasks:[{t:"Learn Prefix Sum — precompute cumulative sums"},{t:"Subarray Sum Equals K",lc:"https://leetcode.com/problems/subarray-sum-equals-k/",ln:"#560"},{t:"Kadane's Algorithm (Maximum Subarray)",lc:"https://leetcode.com/problems/maximum-subarray/",ln:"#53"}]},
+    {d:14,type:"revise",topic:"Revision Day",tasks:[{t:"Redo Binary Search from scratch without help"},{t:"Merge Sorted Arrays",lc:"https://leetcode.com/problems/merge-sorted-array/",ln:"#88"},{t:"Push all solutions to GitHub with complexity comments"}]}
+  ]},
+  {phase:"Phase 3 — Strings (Days 15–21)",days:[
+    {d:15,type:"learn",topic:"String Basics in Java",tasks:[{t:"Learn: String immutability, charAt, substring, toCharArray"},{t:"Learn: StringBuilder vs String for concatenation"},{t:"Practice: reverse a string, check palindrome manually"}]},
+    {d:16,type:"learn",topic:"Sliding Window Pattern",tasks:[{t:"Learn: expand right pointer, shrink left when violated"},{t:"Longest Substring Without Repeating Characters",lc:"https://leetcode.com/problems/longest-substring-without-repeating-characters/",ln:"#3"},{t:"Dry run on paper: trace both pointers step by step"}]},
+    {d:17,type:"practice",topic:"HashMap on Strings",tasks:[{t:"Valid Anagram",lc:"https://leetcode.com/problems/valid-anagram/",ln:"#242"},{t:"Group Anagrams",lc:"https://leetcode.com/problems/group-anagrams/",ln:"#49"}]},
+    {d:18,type:"practice",topic:"Advanced Sliding Window",tasks:[{t:"Minimum Window Substring (take your time)",lc:"https://leetcode.com/problems/minimum-window-substring/",ln:"#76"},{t:"Spend 30 min struggling, then look at approach only"}]},
+    {d:19,type:"practice",topic:"String Algorithms",tasks:[{t:"Implement strStr() / KMP intro",lc:"https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/",ln:"#28"},{t:"Count and Say",lc:"https://leetcode.com/problems/count-and-say/",ln:"#38"}]},
+    {d:20,type:"revise",topic:"Pattern Practice",tasks:[{t:"Redo Longest Substring Without Repeating Characters cold"},{t:"Write down: what makes sliding window different from two pointers?"}]},
+    {d:21,type:"revise",topic:"Revision + Mini Mock",tasks:[{t:"Pick any 2 Week 3 problems randomly and solve in 45 min"},{t:"Push all to GitHub"}]}
+  ]},
+  {phase:"Phase 4 — Linked List (Days 22–28)",days:[
+    {d:22,type:"learn",topic:"What is a Linked List?",tasks:[{t:"Learn: Node class — val + next pointer, draw boxes with arrows"},{t:"Write: create a linked list, traverse it, print all nodes"},{t:"Understand: why no index access — must traverse from head"}]},
+    {d:23,type:"learn",topic:"Fast & Slow Pointer Pattern",tasks:[{t:"Learn: two pointers moving at different speeds"},{t:"Middle of the Linked List",lc:"https://leetcode.com/problems/middle-of-the-linked-list/",ln:"#876"},{t:"Reverse Linked List",lc:"https://leetcode.com/problems/reverse-linked-list/",ln:"#206"}]},
+    {d:24,type:"practice",topic:"Linked List Problems",tasks:[{t:"Merge Two Sorted Lists",lc:"https://leetcode.com/problems/merge-two-sorted-lists/",ln:"#21"},{t:"Remove Nth Node from End of List",lc:"https://leetcode.com/problems/remove-nth-node-from-end-of-list/",ln:"#19"}]},
+    {d:25,type:"practice",topic:"More Patterns",tasks:[{t:"Intersection of Two Linked Lists",lc:"https://leetcode.com/problems/intersection-of-two-linked-lists/",ln:"#160"},{t:"Palindrome Linked List",lc:"https://leetcode.com/problems/palindrome-linked-list/",ln:"#234"}]},
+    {d:26,type:"revise",topic:"Revision Day",tasks:[{t:"Redo Reverse Linked List from scratch — no notes"},{t:"Can you explain fast/slow pointer in your own words?"}]},
+    {d:27,type:"learn",topic:"Recursion Intro",tasks:[{t:"Learn: recursion = function calling itself + base case"},{t:"Practice: factorial, fibonacci, sum of digits — write all 3"},{t:"Every recursion needs a base case or it's an infinite loop"}]},
+    {d:28,type:"revise",topic:"Week Revision",tasks:[{t:"Push all Linked List solutions to GitHub"},{t:"Write notes.md in week-04: 3 patterns you learned"}]}
+  ]},
+  {phase:"Phase 5 — Stack & Queue (Days 29–35)",days:[
+    {d:29,type:"learn",topic:"Stack & Queue Concepts",tasks:[{t:"Learn: Stack = LIFO (like plates), Queue = FIFO (like a shop queue)"},{t:"Java: use Deque<Integer> d = new ArrayDeque<>() for both"},{t:"Practice: push/pop/peek manually"}]},
+    {d:30,type:"practice",topic:"Stack Problems",tasks:[{t:"Valid Parentheses",lc:"https://leetcode.com/problems/valid-parentheses/",ln:"#20"},{t:"Min Stack",lc:"https://leetcode.com/problems/min-stack/",ln:"#155"}]},
+    {d:31,type:"learn",topic:"Monotonic Stack Pattern",tasks:[{t:"Learn: maintain decreasing/increasing stack to find next greater/smaller"},{t:"Next Greater Element I",lc:"https://leetcode.com/problems/next-greater-element-i/",ln:"#496"},{t:"Daily Temperatures",lc:"https://leetcode.com/problems/daily-temperatures/",ln:"#739"}]},
+    {d:32,type:"practice",topic:"More Stack",tasks:[{t:"Implement Queue using Stack",lc:"https://leetcode.com/problems/implement-queue-using-stacks/",ln:"#232"},{t:"Evaluate Reverse Polish Notation",lc:"https://leetcode.com/problems/evaluate-reverse-polish-notation/",ln:"#150"}]},
+    {d:33,type:"practice",topic:"Hard Stack Problem",tasks:[{t:"Largest Rectangle in Histogram",lc:"https://leetcode.com/problems/largest-rectangle-in-histogram/",ln:"#84"},{t:"Dry run: trace stack state for [2,1,5,6,2,3] on paper"}]},
+    {d:34,type:"revise",topic:"Revision",tasks:[{t:"Redo Valid Parentheses and Daily Temperatures cold"},{t:"Push to GitHub"}]},
+    {d:35,type:"revise",topic:"Mini Mock",tasks:[{t:"Solve any 2 stack problems in 60 min without help"}]}
+  ]},
+  {phase:"Phase 6 — Trees (Days 36–43)",days:[
+    {d:36,type:"learn",topic:"Binary Tree Basics",tasks:[{t:"Learn: TreeNode class, left/right children, root node"},{t:"Draw a binary tree with 7 nodes — label root, leaf, height"},{t:"Learn: Inorder (L-Root-R), Preorder (Root-L-R), Postorder (L-R-Root)"}]},
+    {d:37,type:"learn",topic:"Tree Traversals",tasks:[{t:"Write all 3 traversals by hand"},{t:"Maximum Depth of Binary Tree",lc:"https://leetcode.com/problems/maximum-depth-of-binary-tree/",ln:"#104"},{t:"Key: recursion on tree = left + right + current node"}]},
+    {d:38,type:"practice",topic:"Tree Problems",tasks:[{t:"Symmetric Tree",lc:"https://leetcode.com/problems/symmetric-tree/",ln:"#101"},{t:"Diameter of Binary Tree",lc:"https://leetcode.com/problems/diameter-of-binary-tree/",ln:"#543"}]},
+    {d:39,type:"learn",topic:"BFS on Trees",tasks:[{t:"Learn BFS: use Queue, process level by level"},{t:"Level Order Traversal",lc:"https://leetcode.com/problems/binary-tree-level-order-traversal/",ln:"#102"}]},
+    {d:40,type:"practice",topic:"BST Concepts",tasks:[{t:"Learn: BST rule — left < root < right, Inorder = sorted"},{t:"Validate Binary Search Tree",lc:"https://leetcode.com/problems/validate-binary-search-tree/",ln:"#98"}]},
+    {d:41,type:"practice",topic:"LCA + Construct",tasks:[{t:"Lowest Common Ancestor",lc:"https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",ln:"#236"},{t:"Construct Binary Tree from Preorder & Inorder",lc:"https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",ln:"#105"}]},
+    {d:42,type:"revise",topic:"Tree Revision",tasks:[{t:"Redo Max Depth and Symmetric Tree cold"},{t:"What does Inorder traversal give for a BST?"}]},
+    {d:43,type:"revise",topic:"Week Push",tasks:[{t:"Push all tree solutions with complexity notes"}]}
+  ]},
+  {phase:"Phase 7 — Backtracking (Days 44–52)",days:[
+    {d:44,type:"learn",topic:"Backtracking Concept",tasks:[{t:"Learn: Choose → Explore → Unchoose (3-step framework)"},{t:"Draw decision tree for subsets of [1,2,3] on paper"},{t:"Key: backtracking = recursion + undo the last choice"}]},
+    {d:45,type:"practice",topic:"Subsets & Combinations",tasks:[{t:"Subsets",lc:"https://leetcode.com/problems/subsets/",ln:"#78"},{t:"Combination Sum",lc:"https://leetcode.com/problems/combination-sum/",ln:"#39"}]},
+    {d:46,type:"practice",topic:"Permutations",tasks:[{t:"Permutations",lc:"https://leetcode.com/problems/permutations/",ln:"#46"},{t:"Draw permutation tree for [1,2,3] — how many leaves?"}]},
+    {d:47,type:"practice",topic:"Grid Backtracking",tasks:[{t:"Word Search",lc:"https://leetcode.com/problems/word-search/",ln:"#79"},{t:"Rat in a Maze (GFG)",lc:"https://www.geeksforgeeks.org/rat-in-a-maze-backtracking-2/",ln:"GFG"}]},
+    {d:48,type:"practice",topic:"Hard Backtracking",tasks:[{t:"N-Queens",lc:"https://leetcode.com/problems/n-queens/",ln:"#51"},{t:"Sudoku Solver (take 2 days if needed)",lc:"https://leetcode.com/problems/sudoku-solver/",ln:"#37"}]},
+    {d:49,type:"revise",topic:"Revision",tasks:[{t:"Redo Subsets and Combination Sum cold"},{t:"Explain Choose-Explore-Unchoose in your own words"}]}
+  ]},
+  {phase:"Phase 8 — DP & Graphs (Days 53–61)",days:[
+    {d:53,type:"learn",topic:"Dynamic Programming Intro",tasks:[{t:"Learn: DP = recursion + memoization"},{t:"Climbing Stairs — solve with recursion first, then add memo",lc:"https://leetcode.com/problems/climbing-stairs/",ln:"#70"},{t:"Ask: does this have overlapping subproblems?"}]},
+    {d:54,type:"practice",topic:"1D DP",tasks:[{t:"House Robber",lc:"https://leetcode.com/problems/house-robber/",ln:"#198"},{t:"Coin Change",lc:"https://leetcode.com/problems/coin-change/",ln:"#322"}]},
+    {d:55,type:"practice",topic:"Classic DP",tasks:[{t:"Longest Increasing Subsequence",lc:"https://leetcode.com/problems/longest-increasing-subsequence/",ln:"#300"},{t:"0/1 Knapsack",lc:"https://leetcode.com/problems/partition-equal-subset-sum/",ln:"#416"}]},
+    {d:56,type:"revise",topic:"DP Revision",tasks:[{t:"Redo Climbing Stairs and House Robber cold"},{t:"Write the recurrence relation for each problem in notes"}]},
+    {d:57,type:"learn",topic:"Graph Basics",tasks:[{t:"Learn: Graph = nodes + edges, adjacency list representation"},{t:"Build a graph: Map<Integer, List<Integer>>"},{t:"Learn BFS on graph — track visited[] array"}]},
+    {d:58,type:"practice",topic:"Graph Traversal",tasks:[{t:"All Paths from Source to Target",lc:"https://leetcode.com/problems/all-paths-from-source-to-target/",ln:"#797"},{t:"Number of Islands",lc:"https://leetcode.com/problems/number-of-islands/",ln:"#200"}]},
+    {d:59,type:"practice",topic:"Graph Algorithms",tasks:[{t:"Course Schedule (Cycle Detection)",lc:"https://leetcode.com/problems/course-schedule/",ln:"#207"},{t:"Course Schedule II (Topological Sort)",lc:"https://leetcode.com/problems/course-schedule-ii/",ln:"#210"}]},
+    {d:60,type:"practice",topic:"Dijkstra's",tasks:[{t:"Learn: Dijkstra = BFS + Priority Queue for shortest weighted path"},{t:"Network Delay Time",lc:"https://leetcode.com/problems/network-delay-time/",ln:"#743"}]},
+    {d:61,type:"revise",topic:"Final Revision",tasks:[{t:"Redo Number of Islands and Climbing Stairs cold"},{t:"Review all 8 week notes.md files"},{t:"Update GitHub README with your completion status"}]}
+  ]}
+];
+
+const patterns=[
+  {
+    id:"hashmap",title:"HashMap / Frequency Count",difficulty:"Beginner",
+    badges:[{l:"Arrays",c:"pb-g"},{l:"Strings",c:"pb-b"},{l:"Week 1",c:"pb-t"}],
+    desc:"Store elements you've seen so you can look them up in O(1) instead of scanning the whole array again. The single most common trick in easy problems.",
+    visual:`Input: [2, 7, 11, 15], target = 9
+Step 1: i=0 → need (9-2)=7. Is 7 in map? NO. Store map[2]=0
+Step 2: i=1 → need (9-7)=2. Is 2 in map? YES → answer [map[2], 1]`,
+    keywords:["find pair with sum K","count frequency","check if seen before","group by property","duplicate detection"],
+    approach:`1. Create HashMap<value, index/count>
+2. For each element, compute what you NEED
+3. Check if NEED exists in map
+4. If not, add current element to map`,
+    code:`Map<Integer,Integer> map = new HashMap<>();
+for (int i = 0; i < nums.length; i++) {
+    int need = target - nums[i];
+    if (map.containsKey(need)) return new int[]{map.get(need), i};
+    map.put(nums[i], i);
+}`,
+    problems:[{n:"Two Sum",lc:"https://leetcode.com/problems/two-sum/",d:"e"},{n:"Valid Anagram",lc:"https://leetcode.com/problems/valid-anagram/",d:"e"},{n:"Group Anagrams",lc:"https://leetcode.com/problems/group-anagrams/",d:"m"},{n:"Subarray Sum Equals K",lc:"https://leetcode.com/problems/subarray-sum-equals-k/",d:"m"}],
+    trick:"Whenever you see a nested loop (O(n²)), ask yourself: 'Can I store past information in a HashMap to eliminate the inner loop?'"
+  },
+  {
+    id:"twoptr",title:"Two Pointers",difficulty:"Beginner",
+    badges:[{l:"Arrays",c:"pb-g"},{l:"Strings",c:"pb-b"},{l:"Linked List",c:"pb-o"}],
+    desc:"Use two index variables (left and right) instead of one. Move them toward each other or in the same direction based on a condition. Turns O(n²) into O(n).",
+    visual:`Find pair with sum 9 in sorted [1, 2, 4, 6, 8]
+left=0(1), right=4(8) → sum=9 ✓ FOUND
+
+Move toward center:
+[1, 2, 4, 6, 8]  sum=1+8=9 ✓
+ L           R`,
+    keywords:["sorted array","find pair","remove duplicates in place","palindrome check","two elements with condition"],
+    approach:`1. Sort the array (if not sorted)
+2. Set left = 0, right = n-1
+3. Check condition on arr[left] + arr[right]
+4. If too small → left++  (need bigger)
+5. If too big → right--  (need smaller)
+6. If match → record answer`,
+    code:`int left = 0, right = nums.length - 1;
+while (left < right) {
+    int sum = nums[left] + nums[right];
+    if (sum == target) return true;
+    else if (sum < target) left++;
+    else right--;
+}`,
+    problems:[{n:"Best Time to Buy & Sell Stock",lc:"https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",d:"e"},{n:"Merge Sorted Arrays",lc:"https://leetcode.com/problems/merge-sorted-array/",d:"e"},{n:"Container With Most Water",lc:"https://leetcode.com/problems/container-with-most-water/",d:"m"},{n:"3Sum",lc:"https://leetcode.com/problems/3sum/",d:"m"}],
+    trick:"If the array is sorted AND you need to find 2 elements satisfying a condition — Two Pointers is almost always the answer."
+  },
+  {
+    id:"sliding",title:"Sliding Window",difficulty:"Beginner–Medium",
+    badges:[{l:"Strings",c:"pb-b"},{l:"Arrays",c:"pb-g"},{l:"Subarray",c:"pb-t"}],
+    desc:"Maintain a 'window' (a range from index left to right) and slide it across the array. Expand the window by moving right, shrink it by moving left. Never recompute from scratch.",
+    visual:`Longest substring without repeat in "abcabcbb"
+Window: [a]→[ab]→[abc]→shrink→[bca]→[bcab?NO]→shrink
+        max=3 (abc)`,
+    keywords:["longest/shortest substring","minimum window","subarray with condition","contiguous","fixed or variable size window"],
+    approach:`1. Set left = 0, result = 0
+2. Expand: move right pointer forward, add element to window
+3. If window violates constraint → shrink from left
+4. Update result (max or min window size)
+5. Repeat until right reaches end`,
+    code:`int left = 0, max = 0;
+Set<Character> seen = new HashSet<>();
+for (int right = 0; right < s.length(); right++) {
+    while (seen.contains(s.charAt(right)))
+        seen.remove(s.charAt(left++));
+    seen.add(s.charAt(right));
+    max = Math.max(max, right - left + 1);
+}`,
+    problems:[{n:"Longest Substring Without Repeat",lc:"https://leetcode.com/problems/longest-substring-without-repeating-characters/",d:"m"},{n:"Minimum Window Substring",lc:"https://leetcode.com/problems/minimum-window-substring/",d:"h"},{n:"Max Sum Subarray of Size K",lc:"https://leetcode.com/problems/maximum-average-subarray-i/",d:"e"}],
+    trick:"Difference from Two Pointers: Sliding Window tracks a RANGE (window) with data inside it. Two Pointers just tracks two positions. Window needs a data structure (Set/Map) to track window contents."
+  },
+  {
+    id:"fastslow",title:"Fast & Slow Pointers",difficulty:"Beginner",
+    badges:[{l:"Linked List",c:"pb-o"},{l:"Cycle Detection",c:"pb-r"},{l:"Week 4",c:"pb-t"}],
+    desc:"Two pointers where slow moves 1 step and fast moves 2 steps. They will meet if there's a cycle. Fast reaching null means no cycle. Slow at meeting point helps find middle.",
+    visual:`Find middle of 1→2→3→4→5
+Step 1: slow=1, fast=1
+Step 2: slow=2, fast=3
+Step 3: slow=3, fast=5 (end)
+Middle = slow = 3 ✓`,
+    keywords:["middle of linked list","detect cycle","find cycle start","linked list problems","palindrome check on list"],
+    approach:`Finding middle:
+  slow = head, fast = head
+  while fast && fast.next: both move
+  slow is now at middle
+
+Cycle detection:
+  if slow == fast → cycle exists
+  to find start: reset slow to head, move both 1 step`,
+    code:`ListNode slow = head, fast = head;
+while (fast != null && fast.next != null) {
+    slow = slow.next;
+    fast = fast.next.next;
+}
+// slow is now at middle`,
+    problems:[{n:"Middle of Linked List",lc:"https://leetcode.com/problems/middle-of-the-linked-list/",d:"e"},{n:"Linked List Cycle",lc:"https://leetcode.com/problems/linked-list-cycle/",d:"e"},{n:"Palindrome Linked List",lc:"https://leetcode.com/problems/palindrome-linked-list/",d:"e"}],
+    trick:"Any Linked List problem involving 'middle', 'cycle', or 'kth from end' — reach for Fast & Slow. Always draw the pointer movement on paper."
+  },
+  {
+    id:"binsearch",title:"Binary Search on Answer",difficulty:"Medium",
+    badges:[{l:"Sorted Array",c:"pb-g"},{l:"Search Space",c:"pb-p"},{l:"Week 2",c:"pb-t"}],
+    desc:"Binary search isn't just for finding an element. You can binary search on the ANSWER itself — guess a value, check if it's feasible, eliminate half the answer space.",
+    visual:`Find minimum max allocation (Allocate Books)
+Answer range: [max_book, sum_all_books]
+  lo=90 hi=400 → guess mid=245 → feasible? yes → hi=245
+  lo=90 hi=245 → guess mid=167 → feasible? no → lo=168
+  ...converge to answer`,
+    keywords:["find minimum maximum","find maximum minimum","allocate/distribute optimally","search in sorted array","rotated sorted array"],
+    approach:`Classic Binary Search:
+  lo=0, hi=n-1, check arr[mid] vs target
+
+Answer Space Binary Search:
+  lo=minPossibleAnswer, hi=maxPossibleAnswer
+  mid=guess → can we satisfy condition with mid?
+  If yes → hi=mid (try smaller)
+  If no  → lo=mid+1 (need bigger)`,
+    code:`int lo = 0, hi = arr.length - 1;
+while (lo <= hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (arr[mid] == target) return mid;
+    else if (arr[mid] < target) lo = mid + 1;
+    else hi = mid - 1;
+}
+return -1;`,
+    problems:[{n:"Binary Search",lc:"https://leetcode.com/problems/binary-search/",d:"e"},{n:"Find First & Last Position",lc:"https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",d:"m"},{n:"Search in Rotated Sorted Array",lc:"https://leetcode.com/problems/search-in-rotated-sorted-array/",d:"m"},{n:"Kth Largest Element",lc:"https://leetcode.com/problems/kth-largest-element-in-an-array/",d:"m"}],
+    trick:"Use lo + (hi - lo) / 2 instead of (lo + hi) / 2 to prevent integer overflow. This is a real bug that costs candidates interviews."
+  },
+  {
+    id:"monostack",title:"Monotonic Stack",difficulty:"Medium",
+    badges:[{l:"Stack",c:"pb-o"},{l:"Arrays",c:"pb-g"},{l:"Week 5",c:"pb-t"}],
+    desc:"A stack that is always kept in increasing OR decreasing order. When the current element breaks the order — POP. The popped element found its 'next greater' or 'next smaller'.",
+    visual:`Next Greater Element for [2, 1, 5, 6, 2, 3]
+Stack (decreasing): process each element
+  push 2 → [2]
+  push 1 → [2,1]
+  5 > 1 → pop 1, its NGE = 5. 5 > 2 → pop 2, its NGE = 5
+  → [5], push 6 → [5,6] ...`,
+    keywords:["next greater element","next smaller element","previous greater","largest rectangle","stock span","daily temperatures"],
+    approach:`1. Create empty stack (stores indices usually)
+2. For each element:
+   a. While stack not empty AND current breaks order:
+      - POP top. This element's answer = current element
+   b. Push current index onto stack
+3. Remaining in stack → no next greater (answer = -1)`,
+    code:`int[] result = new int[nums.length];
+Deque<Integer> stack = new ArrayDeque<>();
+for (int i = 0; i < nums.length; i++) {
+    while (!stack.isEmpty() && nums[i] > nums[stack.peek()])
+        result[stack.pop()] = nums[i]; // found NGE
+    stack.push(i);
+}`,
+    problems:[{n:"Next Greater Element I",lc:"https://leetcode.com/problems/next-greater-element-i/",d:"e"},{n:"Daily Temperatures",lc:"https://leetcode.com/problems/daily-temperatures/",d:"m"},{n:"Largest Rectangle in Histogram",lc:"https://leetcode.com/problems/largest-rectangle-in-histogram/",d:"h"}],
+    trick:"If the problem asks about 'nearest larger/smaller on left or right', the answer is always Monotonic Stack. Keywords: next greater, previous smaller, span, histogram."
+  },
+  {
+    id:"backtrack",title:"Backtracking",difficulty:"Medium",
+    badges:[{l:"Recursion",c:"pb-p"},{l:"Combinations",c:"pb-b"},{l:"Week 7",c:"pb-t"}],
+    desc:"Build a solution step by step. At each step, make a choice. Recurse. If you reach an invalid state — UNDO the last choice and try the next option. Like exploring a maze and backing out of dead ends.",
+    visual:`Subsets of [1,2,3] — decision tree:
+         []
+       /    \\
+    [1]     []        ← include 1 or not
+   /  \\    /  \\
+[1,2][1][2] []        ← include 2 or not
+...all 8 subsets found`,
+    keywords:["find ALL combinations","find ALL permutations","generate all subsets","solve puzzle (Sudoku, N-Queens)","path in grid","all possible arrangements"],
+    approach:`void backtrack(current, choices) {
+  if (base case) { add current to results; return; }
+  for each choice in remaining choices:
+    1. CHOOSE: add choice to current
+    2. EXPLORE: recurse with updated current
+    3. UNCHOOSE: remove choice from current
+}`,
+    code:`void backtrack(int start, List<Integer> curr, int[] nums) {
+    result.add(new ArrayList<>(curr)); // add copy
+    for (int i = start; i < nums.length; i++) {
+        curr.add(nums[i]);          // CHOOSE
+        backtrack(i + 1, curr, nums); // EXPLORE
+        curr.remove(curr.size()-1); // UNCHOOSE
+    }
+}`,
+    problems:[{n:"Subsets",lc:"https://leetcode.com/problems/subsets/",d:"m"},{n:"Combination Sum",lc:"https://leetcode.com/problems/combination-sum/",d:"m"},{n:"Permutations",lc:"https://leetcode.com/problems/permutations/",d:"m"},{n:"N-Queens",lc:"https://leetcode.com/problems/n-queens/",d:"h"}],
+    trick:"Always add new ArrayList<>(curr) not curr to your results. If you add curr directly, it will be empty by the end because you keep removing from it."
+  },
+  {
+    id:"treeDFS",title:"Tree DFS (Recursive)",difficulty:"Medium",
+    badges:[{l:"Binary Tree",c:"pb-g"},{l:"BST",c:"pb-b"},{l:"Week 6",c:"pb-t"}],
+    desc:"Use recursion to solve tree problems. Each call handles one node, delegates to left and right subtrees, then combines results. Most tree problems follow this single template.",
+    visual:`Max Depth — what each node returns:
+      3          ← returns max(2,1)+1 = 3
+    /   \\
+   2     1       ← returns 2    returns 1
+  / \\
+ 1   1           ← returns 1    returns 1`,
+    keywords:["max depth","diameter","path sum","balanced tree","symmetric","validate BST","LCA","construct tree"],
+    approach:`// The universal tree recursion template:
+returnType solve(TreeNode node) {
+  if (node == null) return BASE_CASE;
+  
+  leftResult  = solve(node.left);
+  rightResult = solve(node.right);
+  
+  // compute answer for current node
+  return combine(leftResult, rightResult, node.val);
+}`,
+    code:`// Max Depth — fits the template perfectly
+int maxDepth(TreeNode root) {
+    if (root == null) return 0;          // base case
+    int left  = maxDepth(root.left);     // left result
+    int right = maxDepth(root.right);    // right result
+    return Math.max(left, right) + 1;    // combine
+}`,
+    problems:[{n:"Maximum Depth of Binary Tree",lc:"https://leetcode.com/problems/maximum-depth-of-binary-tree/",d:"e"},{n:"Diameter of Binary Tree",lc:"https://leetcode.com/problems/diameter-of-binary-tree/",d:"e"},{n:"Symmetric Tree",lc:"https://leetcode.com/problems/symmetric-tree/",d:"e"},{n:"Lowest Common Ancestor",lc:"https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",d:"m"}],
+    trick:"90% of tree problems are solved by asking: 'What should this function return from the left subtree? From the right? What do I do with those two answers?'"
+  },
+  {
+    id:"bfsgraph",title:"BFS on Graph",difficulty:"Medium",
+    badges:[{l:"Graph",c:"pb-r"},{l:"Shortest Path",c:"pb-p"},{l:"Week 8",c:"pb-t"}],
+    desc:"Explore all nodes level by level using a Queue. Guarantees shortest path in unweighted graphs. Always maintain a visited set to avoid revisiting nodes.",
+    visual:`Graph: 0-1-2-3 (chain), BFS from 0:
+Queue: [0]      visited: {0}
+Queue: [1]      visited: {0,1}
+Queue: [2]      visited: {0,1,2}
+Queue: [3]      visited: {0,1,2,3} done`,
+    keywords:["shortest path","minimum steps","level by level","unweighted graph","connected components","reachability"],
+    approach:`1. Add start node to Queue, mark visited
+2. While Queue is not empty:
+   a. Poll a node
+   b. Process it (check if target, collect result)
+   c. For each unvisited neighbour:
+      - Mark visited
+      - Add to Queue
+3. Level separation: track queue size at start of each level`,
+    code:`Queue<Integer> q = new LinkedList<>();
+boolean[] visited = new boolean[n];
+q.offer(start); visited[start] = true;
+while (!q.isEmpty()) {
+    int node = q.poll();
+    for (int nei : graph.get(node)) {
+        if (!visited[nei]) {
+            visited[nei] = true;
+            q.offer(nei);
+        }
+    }
+}`,
+    problems:[{n:"Number of Islands",lc:"https://leetcode.com/problems/number-of-islands/",d:"m"},{n:"All Paths Source to Target",lc:"https://leetcode.com/problems/all-paths-from-source-to-target/",d:"m"},{n:"Course Schedule",lc:"https://leetcode.com/problems/course-schedule/",d:"m"},{n:"Network Delay Time",lc:"https://leetcode.com/problems/network-delay-time/",d:"m"}],
+    trick:"For BFS on a 2D grid (like Number of Islands), your 'neighbours' are the 4 directions: up, down, left, right. Use dx[] = {0,0,1,-1}, dy[] = {1,-1,0,0}."
+  },
+  {
+    id:"dp",title:"Dynamic Programming (1D)",difficulty:"Medium–Hard",
+    badges:[{l:"Optimization",c:"pb-p"},{l:"Counting",c:"pb-b"},{l:"Week 8",c:"pb-t"}],
+    desc:"When a recursive solution solves the same subproblem multiple times, store the answers. DP = Recursion + Memory. Start by writing the recursion, then add memoization, then convert to bottom-up table.",
+    visual:`Fibonacci without DP: fib(5) calls fib(3) TWICE
+                fib(5)
+              /        \\
+          fib(4)       fib(3) ← REPEATED
+         /    \\
+      fib(3)  fib(2)   ← fib(3) computed again!
+With memo: fib(3) is computed once, stored, reused.`,
+    keywords:["minimum/maximum ways","count distinct paths","can you reach target","optimal substructure","overlapping subproblems","knapsack","subsequence"],
+    approach:`Step 1: Write recursive solution
+Step 2: Add memo array (top-down)
+  if memo[n] != -1: return memo[n]
+  memo[n] = recursive call
+  return memo[n]
+
+Step 3: Convert to bottom-up (tabulation)
+  dp[0] = base case
+  for i = 1 to n: dp[i] = recurrence using dp[i-1], dp[i-2]...`,
+    code:`// House Robber — bottom-up DP
+int rob(int[] nums) {
+    if (nums.length == 1) return nums[0];
+    int[] dp = new int[nums.length];
+    dp[0] = nums[0];
+    dp[1] = Math.max(nums[0], nums[1]);
+    for (int i = 2; i < nums.length; i++)
+        dp[i] = Math.max(dp[i-1], dp[i-2] + nums[i]);
+    return dp[nums.length - 1];
+}`,
+    problems:[{n:"Climbing Stairs",lc:"https://leetcode.com/problems/climbing-stairs/",d:"e"},{n:"House Robber",lc:"https://leetcode.com/problems/house-robber/",d:"m"},{n:"Coin Change",lc:"https://leetcode.com/problems/coin-change/",d:"m"},{n:"Longest Increasing Subsequence",lc:"https://leetcode.com/problems/longest-increasing-subsequence/",d:"m"}],
+    trick:"Always define clearly what dp[i] MEANS before writing anything. 'dp[i] = minimum coins to make amount i'. If your definition is fuzzy, your code will be wrong."
+  }
+];
+
+const dsData=[
+  {title:"Array",tag:"Week 1",emoji:"📦",analogy:"Like a row of numbered lockers. You can go to any locker instantly if you know the number.",when:"Storing ordered data, index-based access needed",ops:[{n:"Access by index",c:"O(1)",q:"good"},{n:"Search (unsorted)",c:"O(n)",q:"ok"},{n:"Insert at end",c:"O(1)",q:"good"},{n:"Insert in middle",c:"O(n)",q:"ok"}],java:`int[] arr = {1, 2, 3, 4, 5};
+int x = arr[2];        // 3
+arr[0] = 10;           // update
+int len = arr.length;  // 5`,tip:"When stuck, draw the array as boxes on paper and trace your pointer step by step."},
+  {title:"HashMap",tag:"Week 1 — used in 40% of problems",emoji:"🗃️",analogy:"Like a dictionary. Look up a word (key) and instantly get its definition (value).",when:"Count frequency, check if element seen before, key-value lookup",ops:[{n:"Put (insert)",c:"O(1)",q:"good"},{n:"Get (lookup)",c:"O(1)",q:"good"},{n:"Contains key",c:"O(1)",q:"good"}],java:`Map<Integer,Integer> map = new HashMap<>();
+map.put(5, 10);
+int val = map.get(5);         // 10
+map.containsKey(5);           // true
+map.getOrDefault(9, 0);       // 0 if missing`,tip:"Whenever you see a nested loop (O(n²)), ask 'can I use a HashMap to eliminate the inner loop?'"},
+  {title:"Linked List",tag:"Week 4",emoji:"🔗",analogy:"Like a treasure hunt. Each clue says where the next clue is. Can't jump — must follow the chain.",when:"Frequent insertions/deletions, don't need random access",ops:[{n:"Access by index",c:"O(n)",q:"bad"},{n:"Insert at head",c:"O(1)",q:"good"},{n:"Delete a node",c:"O(1)*",q:"good"}],java:`class ListNode {
+    int val; ListNode next;
+    ListNode(int v) { val = v; }
+}
+ListNode head = new ListNode(1);
+head.next = new ListNode(2);`,tip:"Always draw boxes with arrows when solving linked list problems. Never try to solve in your head."},
+  {title:"Stack",tag:"Week 5 — LIFO",emoji:"🥞",analogy:"Like a stack of plates. You can only add or remove from the top.",when:"Matching brackets, undo operations, next greater element",ops:[{n:"Push",c:"O(1)",q:"good"},{n:"Pop",c:"O(1)",q:"good"},{n:"Peek",c:"O(1)",q:"good"}],java:`Deque<Integer> stack = new ArrayDeque<>();
+stack.push(5);
+stack.push(3);
+int top = stack.peek(); // 3
+stack.pop();            // removes 3`,tip:"Use Deque in Java, not the old Stack class. It's faster and more modern."},
+  {title:"Queue",tag:"Week 5 — BFS backbone",emoji:"🚶",analogy:"Like a queue at a store. First in, first served (FIFO).",when:"BFS traversal, level-order processing",ops:[{n:"Offer (add rear)",c:"O(1)",q:"good"},{n:"Poll (remove front)",c:"O(1)",q:"good"},{n:"Peek (see front)",c:"O(1)",q:"good"}],java:`Queue<Integer> q = new LinkedList<>();
+q.offer(1);
+q.offer(2);
+q.peek();   // 1
+q.poll();   // removes 1`,tip:"BFS always uses a Queue. If you see 'shortest path' or 'level by level' — reach for a Queue."},
+  {title:"Binary Tree",tag:"Week 6",emoji:"🌳",analogy:"Like a family tree. One root, each node has at most 2 children: left and right.",when:"Hierarchical data, BST for sorted search, recursion practice",ops:[{n:"Search (BST)",c:"O(log n)",q:"good"},{n:"Insert (BST)",c:"O(log n)",q:"good"}],java:`class TreeNode {
+    int val; TreeNode left, right;
+    TreeNode(int v) { val = v; }
+}
+void inorder(TreeNode root) {
+    if (root == null) return;
+    inorder(root.left);
+    System.out.print(root.val);
+    inorder(root.right);
+}`,tip:"Almost every tree problem: 'What does my function return from left subtree? Right? What do I combine?'"},
+  {title:"Graph",tag:"Week 8",emoji:"🕸️",analogy:"Like a city map. Cities are nodes, roads are edges. Roads can be one-way (directed).",when:"Network problems, shortest path, dependency resolution",ops:[{n:"BFS traversal",c:"O(V+E)",q:"good"},{n:"DFS traversal",c:"O(V+E)",q:"good"}],java:`Map<Integer,List<Integer>> graph = new HashMap<>();
+graph.put(0, Arrays.asList(1, 2));
+Queue<Integer> q = new LinkedList<>();
+boolean[] visited = new boolean[n];
+q.offer(0); visited[0] = true;`,tip:"Always maintain a visited[] array in graphs or you'll loop forever."}
+];
+
+const algoData=[
+  {id:"bubble",title:"Bubble Sort",tag:"O(n²)",cat:"Sorting",explain:"Compare adjacent elements. Swap if left > right. Repeat. Large elements 'bubble up' to the end.",steps:["Compare arr[0] & arr[1], swap if needed. Then arr[1] & arr[2]…","After pass 1, largest is at the end.","Repeat n-1 times.","If no swap in a pass → already sorted."],code:`void bubbleSort(int[] arr) {
+    for (int i = 0; i < arr.length-1; i++)
+        for (int j = 0; j < arr.length-i-1; j++)
+            if (arr[j] > arr[j+1]) {
+                int t = arr[j]; arr[j]=arr[j+1]; arr[j+1]=t;
+            }
+}`,time:"O(n²)",space:"O(1)",when:"Learning only. Never use in interviews — too slow."},
+  {id:"merge",title:"Merge Sort",tag:"O(n log n) — interview favourite",cat:"Sorting",explain:"Divide array in half → sort left → sort right → merge both. Uses recursion. This is how Arrays.sort() works for objects in Java.",steps:["Divide: split array into 2 halves.","Conquer: recursively sort each half.","Merge: merge two sorted halves.","Base case: array of size 1 is already sorted."],code:`void mergeSort(int[] arr, int l, int r) {
+    if (l >= r) return;
+    int mid = (l + r) / 2;
+    mergeSort(arr, l, mid);
+    mergeSort(arr, mid+1, r);
+    merge(arr, l, mid, r);
+}`,time:"O(n log n)",space:"O(n)",when:"Most asked sorting in interviews. Know it cold."},
+  {id:"quick",title:"Quick Sort",tag:"O(n log n) avg",cat:"Sorting",explain:"Pick a pivot. Put smaller elements left, larger right. Recursively sort both sides.",steps:["Pick pivot (last element usually).","Partition: all < pivot go left, all > go right.","Pivot is at its final position.","Recursively sort left and right."],code:`int partition(int[] arr, int lo, int hi) {
+    int pivot = arr[hi], i = lo - 1;
+    for (int j = lo; j < hi; j++)
+        if (arr[j] <= pivot) swap(arr, ++i, j);
+    swap(arr, i+1, hi);
+    return i + 1;
+}`,time:"O(n log n) avg, O(n²) worst",space:"O(log n)",when:"Used by Java for primitive arrays. Know the partition step."},
+  {id:"binsearch",title:"Binary Search",tag:"O(log n) — must know cold",cat:"Searching",explain:"Only works on SORTED arrays. Check middle. If smaller → go right. If larger → go left. Halves the search space each step.",steps:["Set lo=0, hi=n-1.","Find mid = lo + (hi-lo)/2.","If arr[mid] == target → found!","arr[mid] < target → lo=mid+1.","arr[mid] > target → hi=mid-1.","Repeat until lo > hi."],code:`int binarySearch(int[] arr, int target) {
+    int lo = 0, hi = arr.length - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] == target) return mid;
+        else if (arr[mid] < target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+}`,time:"O(log n)",space:"O(1)",when:"Any sorted array search. Also 'answer space' problems."},
+  {id:"bfs",title:"BFS",tag:"O(V+E) — shortest path",cat:"Graph/Tree",explain:"Explore all neighbours before going deeper. Level by level. Uses Queue. Shortest path in unweighted graph.",steps:["Add start to Queue. Mark visited.","While Queue not empty: poll a node.","For each unvisited neighbour: add to Queue, mark visited.","Done when Queue empty or target found."],code:`void bfs(int start) {
+    Queue<Integer> q = new LinkedList<>();
+    boolean[] vis = new boolean[n];
+    q.offer(start); vis[start] = true;
+    while (!q.isEmpty()) {
+        int node = q.poll();
+        for (int nei : graph.get(node))
+            if (!vis[nei]) { vis[nei]=true; q.offer(nei); }
+    }
+}`,time:"O(V+E)",space:"O(V)",when:"Shortest path, level-order, minimum steps to reach."},
+  {id:"dfs",title:"DFS",tag:"O(V+E) — explore all paths",cat:"Graph/Tree",explain:"Go as deep as possible before backtracking. Uses recursion or Stack. Used for paths, cycles, topological sort.",steps:["Start at node. Mark visited.","Recursively visit each unvisited neighbour.","Backtrack when no more neighbours.","Repeat until all nodes visited."],code:`void dfs(int node, boolean[] vis) {
+    vis[node] = true;
+    for (int nei : graph.get(node))
+        if (!vis[nei]) dfs(nei, vis);
+}`,time:"O(V+E)",space:"O(V)",when:"All paths, cycle detection, connected components, topo sort."},
+  {id:"dp",title:"Dynamic Programming",tag:"Memo + Tabulation",cat:"Optimization",explain:"Store answers to subproblems so you never recompute. If recursion has overlapping calls — add memoization.",steps:["Write recursive solution first.","Draw recursion tree — spot repeated calls.","Add memo array to store results.","Convert to bottom-up table for best space."],code:`int[] memo = new int[n+1];
+Arrays.fill(memo, -1);
+int solve(int n) {
+    if (n <= 1) return n;
+    if (memo[n] != -1) return memo[n];
+    return memo[n] = solve(n-1) + solve(n-2);
+}`,time:"O(n) to O(n²) typically",space:"O(n) to O(n²)",when:"Min/max ways, count paths, optimal value, can you reach target."}
+];
+
+function buildPlan(){
+  let total=0, html='';
+  plan.forEach(ph=>{
+    html+='<div class="phase-header">'+ph.phase+'</div>';
+    ph.days.forEach(d=>{
+      html+='<div class="day-card"><div class="day-top"><span class="day-num">Day '+d.d+'</span><span class="day-topic t-'+d.type+'">'+d.topic+'</span></div>';
+      d.tasks.forEach((t,ti)=>{
+        const key='d'+d.d+'_t'+ti; total++;
+        html+='<div class="task-row"><input type="checkbox" id="'+key+'" onchange="chk(\''+key+'\')"><label class="task-label" id="lbl_'+key+'" for="'+key+'">'+t.t+(t.lc?'<a class="lc-link" href="'+t.lc+'" target="_blank">'+t.ln+'</a>':'')+'</label></div>';
+      });
+      html+='</div>';
+    });
+  });
+  document.getElementById('plan-out').innerHTML=html;
+  document.getElementById('prog-txt').textContent='0 / '+total+' tasks done';
+  window._total=total;
+}
+
+const _checked={};
+function chk(key){
+  const cb=document.getElementById(key);
+  _checked[key]=cb.checked;
+  document.getElementById('lbl_'+key).classList.toggle('done',cb.checked);
+  const done=Object.values(_checked).filter(Boolean).length;
+  document.getElementById('prog-txt').textContent=done+' / '+window._total+' tasks done';
+  document.getElementById('prog-fill').style.width=Math.round(done/window._total*100)+'%';
+}
+
+let activeFilter='All';
+function buildPatterns(){
+  const filters=['All','Beginner','Medium','Hard'];
+  let html='<div class="pat-intro">For every new problem, ask these 3 questions: <strong style="color:var(--color-text-primary)">1) Is the array sorted?</strong> <strong style="color:var(--color-text-primary)">2) What am I looking for (pair, subarray, path)?</strong> <strong style="color:var(--color-text-primary)">3) Do I need ALL results or just ONE optimal?</strong> Then match to a pattern below.</div>';
+  html+='<div class="pat-filter-row" id="filter-row">';
+  filters.forEach(f=>html+='<button class="pat-filter'+(f==='All'?' active':'')+'" onclick="filterPat(\''+f+'\')">'+f+'</button>');
+  html+='</div><div id="pat-list"></div>';
+  document.getElementById('patterns-out').innerHTML=html;
+  renderPatterns('All');
+}
+
+function filterPat(f){
+  activeFilter=f;
+  document.querySelectorAll('.pat-filter').forEach(el=>el.classList.toggle('active',el.textContent===f));
+  renderPatterns(f);
+}
+
+function renderPatterns(f){
+  const filtered = f==='All' ? patterns : patterns.filter(p=>p.difficulty.includes(f==='Beginner'?'Beginner':f==='Medium'?'Medium':'Hard'));
+  let html='';
+  filtered.forEach((p,i)=>{
+    const diffColor = p.difficulty==='Beginner'?'pb-g':p.difficulty.includes('Hard')?'pb-r':'pb-o';
+    html+='<div class="pat-card"><div class="pat-head" onclick="togglePat(\''+p.id+'\')"><div style="flex:1"><span class="pat-badge '+diffColor+'">'+p.difficulty+'</span> <span style="font-size:13px;font-weight:500;color:var(--color-text-primary)">'+p.title+'</span><div style="margin-top:5px">'+p.badges.map(b=>'<span class="pat-badge '+b.c+'">'+b.l+'</span>').join('')+'</div></div><span class="chevron" id="pch_'+p.id+'">▼</span></div>';
+    html+='<div class="pat-body" id="pb_'+p.id+'">';
+    html+='<div class="ds-section"><div class="ds-section-title">What is this pattern?</div><div class="ds-text">'+p.desc+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">How to identify — keywords to look for</div><div class="keyword-row">'+p.keywords.map(k=>'<span class="keyword">'+k+'</span>').join('')+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Visual trace</div><div class="visual-box">'+p.visual+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Approach / template</div><div class="visual-box">'+p.approach+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Java code template</div><div class="code-block">'+p.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Practice problems</div>';
+    p.problems.forEach(pr=>{
+      const dc=pr.d==='e'?'diff-e':pr.d==='m'?'diff-m':'diff-h';
+      const dl=pr.d==='e'?'Easy':pr.d==='m'?'Medium':'Hard';
+      html+='<div class="prob-row"><a href="'+pr.lc+'" target="_blank" style="color:var(--color-text-primary);text-decoration:none;">'+pr.n+'</a><span class="'+dc+'">'+dl+'</span></div>';
+    });
+    html+='</div>';
+    html+='<div class="tip-box"><div class="tip-text">⚡ Key trick: '+p.trick+'</div></div>';
+    html+='</div></div>';
+  });
+  document.getElementById('pat-list').innerHTML=html;
+}
+
+function togglePat(id){
+  const b=document.getElementById('pb_'+id);
+  const ch=document.getElementById('pch_'+id);
+  const open=b.classList.toggle('open');
+  ch.classList.toggle('open',open);
+}
+
+function buildDS(){
+  let html='';
+  dsData.forEach((d,i)=>{
+    html+='<div class="ds-card"><div class="ds-head" onclick="toggleDS('+i+')"><div><span style="font-size:15px">'+d.emoji+'</span> <span class="ds-title">'+d.title+'</span> <span style="font-size:11px;color:var(--color-text-tertiary);margin-left:6px">'+d.tag+'</span></div><span class="chevron" id="ch'+i+'">▼</span></div>';
+    html+='<div class="ds-body" id="ds'+i+'"><div class="ds-section"><div class="ds-section-title">Real-world analogy</div><div class="ds-text">'+d.analogy+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Use when</div><div class="ds-text">'+d.when+'</div></div>';
+    html+='<div class="ds-section"><div class="ds-section-title">Key operations</div>';
+    d.ops.forEach(o=>html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span>'+o.n+'</span><span class="c-badge c-'+o.q+'">'+o.c+'</span></div>');
+    html+='</div><div class="ds-section"><div class="ds-section-title">Java code</div><div class="code-block">'+d.java.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div>';
+    html+='<div class="tip-box"><div class="tip-text">💡 '+d.tip+'</div></div></div></div>';
+  });
+  document.getElementById('ds-out').innerHTML=html;
+}
+
+function toggleDS(i){
+  const b=document.getElementById('ds'+i),ch=document.getElementById('ch'+i);
+  ch.classList.toggle('open',b.classList.toggle('open'));
+}
+
+function buildAlgo(){
+  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px">';
+  algoData.forEach(a=>html+='<div class="algo-mini" id="btn_'+a.id+'" onclick="showAlgo(\''+a.id+'\')"><div class="algo-mini-title">'+a.title+'</div><div class="algo-mini-tag">'+a.cat+' · '+a.time+'</div></div>');
+  html+='</div><div id="algo-detail-box"></div>';
+  document.getElementById('algo-out').innerHTML=html;
+}
+
+function showAlgo(id){
+  document.querySelectorAll('.algo-mini').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('btn_'+id).classList.add('selected');
+  const a=algoData.find(x=>x.id===id);
+  const qTime=a.time.includes('n²')?'bad':a.time.includes('log')?'good':'ok';
+  let stepsHtml=a.steps.map((s,i)=>'<div class="step"><div class="step-num">'+(i+1)+'</div><div class="step-text">'+s+'</div></div>').join('');
+  document.getElementById('algo-detail-box').innerHTML='<div class="algo-detail show"><div style="margin-bottom:10px"><strong style="font-size:13px">'+a.title+'</strong> <span style="font-size:11px;color:var(--color-text-secondary)">'+a.tag+'</span></div><div class="ds-section"><div class="ds-section-title">What it does</div><div class="ds-text">'+a.explain+'</div></div><div class="ds-section"><div class="ds-section-title">Steps</div>'+stepsHtml+'</div><div class="ds-section"><div class="ds-section-title">Java code</div><div class="code-block">'+a.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div><div style="display:flex;gap:8px;margin-top:8px"><span class="c-badge c-'+qTime+'">Time: '+a.time+'</span><span class="c-badge c-good">Space: '+a.space+'</span></div><div class="tip-box" style="margin-top:10px"><div class="tip-text">📌 Use when: '+a.when+'</div></div></div>';
+}
+
+function buildHow(){
+  const steps=[
+    {n:1,title:"Read the problem 3 times",body:"First: what does it want? Second: input/output format? Third: constraints (array size, value range). Most beginners jump to code after 1 read — don't."},
+    {n:2,title:"Write an example by hand",body:"Take the given example and trace it step by step on paper. Then make your own small example (3–4 elements) and trace that too."},
+    {n:3,title:"Identify the pattern",body:"Ask in order:\n• Is the array sorted? → Binary Search or Two Pointers\n• Need a pair/sum? → HashMap or Two Pointers\n• Substring/subarray with condition? → Sliding Window\n• Linked List middle/cycle? → Fast & Slow Pointers\n• Generate ALL combinations? → Backtracking\n• Min/max optimal value? → DP\n• Nodes + connections? → Graph BFS/DFS"},
+    {n:4,title:"Write brute force first",body:"Always write the O(n²) naive solution first. It may not pass, but it proves you understand the problem. Then optimize. Interviewers love seeing your thought process."},
+    {n:5,title:"Dry run before coding",body:"Trace your algorithm on your small example, step by step. Write the value of each variable at each step. If dry run is wrong, fix logic now — not after writing code."},
+    {n:6,title:"Code it",body:"Now open LeetCode. Start with the method signature provided. Use standard variable names: i, j, left, right, mid, slow, fast, curr, result."},
+    {n:7,title:"Test edge cases",body:"After passing: test empty array [], single element [5], all same elements [3,3,3], negatives if applicable. These are common interview traps."},
+    {n:8,title:"Analyse complexity",body:"Always ask: Time complexity? Space complexity? Can I improve it? Write this as a comment at the top of your solution file."}
+  ];
+  const rules=[
+    {t:"Stuck for 20+ min?",b:"Look at just the hint/approach — not the code. Never look at a full solution until you've genuinely struggled."},
+    {t:"If you do look at the solution",b:"Close it. Wait 10 minutes. Then write it from scratch yourself. Copy-pasting = 0 learning. Struggle + understand + rewrite = real learning."},
+    {t:"Don't memorise solutions",b:"Memorise patterns. The same Sliding Window / HashMap / DFS pattern appears in hundreds of different problems. Patterns are the key."},
+    {t:"One problem at a time",b:"Don't open 5 problems. Solve 1 completely, understand it, push to GitHub, move on. Quality over quantity."},
+    {t:"Paper before keyboard",b:"Draw. Trace. Write pseudocode on paper first for any medium/hard problem. The best programmers sketch before they type."}
+  ];
+  let html='<div class="ds-section" style="margin-bottom:1.5rem"><div class="ds-section-title">8-step process for every problem</div>';
+  steps.forEach(s=>html+='<div style="border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start"><div style="min-width:22px;height:22px;background:#E6F1FB;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#185FA5;flex-shrink:0;margin-top:1px">'+s.n+'</div><div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">'+s.title+'</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7;white-space:pre-line">'+s.body+'</div></div></div></div>');
+  html+='</div><div class="ds-section"><div class="ds-section-title">Golden rules for beginners</div>';
+  rules.forEach(r=>html+='<div class="tip-box" style="margin-bottom:8px"><div style="font-size:12px;font-weight:500;color:#085041;margin-bottom:3px">'+r.t+'</div><div class="tip-text">'+r.b+'</div></div>');
+  html+='</div>';
+  document.getElementById('how-out').innerHTML=html;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const names=['plan','patterns','ds','algo','how'];
+  document.querySelectorAll('.tab')[names.indexOf(name)].classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+buildPlan(); buildPatterns(); buildDS(); buildAlgo(); buildHow();
+</script>
